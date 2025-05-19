@@ -141,6 +141,29 @@ let categories = [
 let currentCategory = "all";
 let editingIndex = null;
 
+function saveData() {
+  localStorage.setItem("prompts", JSON.stringify(prompts));
+  localStorage.setItem("categories", JSON.stringify(categories));
+}
+
+function loadData() {
+  const savedPrompts = localStorage.getItem("prompts");
+  const savedCategories = localStorage.getItem("categories");
+  if (savedPrompts) {
+    try {
+      prompts = JSON.parse(savedPrompts);
+    } catch {}
+  }
+  if (savedCategories) {
+    try {
+      categories = JSON.parse(savedCategories);
+    } catch {}
+  }
+}
+
+// Load data on page load
+loadData();
+
 function renderCards() {
   const cardList = document.getElementById("cardList");
   cardList.innerHTML = "";
@@ -165,6 +188,9 @@ function renderCards() {
         <button class="copy-btn" data-idx="${prompts.indexOf(
           p
         )}">📋 Copy</button>
+        <button class="delete-card-btn" data-idx="${prompts.indexOf(
+          p
+        )}">🗑️ Delete</button>
       </div>
     `;
     cardList.appendChild(card);
@@ -191,6 +217,16 @@ function attachCardEvents() {
       copyToClipboard(prompts[idx].prompt);
     };
   });
+  document.querySelectorAll(".delete-card-btn").forEach((btn) => {
+    btn.onclick = function () {
+      const idx = +btn.getAttribute("data-idx");
+      if (confirm("Are you sure you want to delete this card?")) {
+        prompts.splice(idx, 1);
+        saveData();
+        renderCards();
+      }
+    };
+  });
 }
 
 function showModal(prompt, editable, idx) {
@@ -205,6 +241,7 @@ function showModal(prompt, editable, idx) {
       document.getElementById("saveBtn").onclick = function () {
         const newPrompt = document.getElementById("editArea").value;
         prompts[editingIndex].prompt = newPrompt;
+        saveData();
         renderCards();
         modal.style.display = "none";
       };
@@ -222,18 +259,55 @@ function renderCategories() {
     const isActive =
       (currentCategory === "all" && cat.value === "all") ||
       cat.label === currentCategory;
-    catDiv.innerHTML += `<button class="category ${cat.class}${
+    catDiv.innerHTML += `
+      <span class="category-container" style="display:inline-flex;align-items:center;gap:0;">
+        <button class="category ${cat.class}${
       isActive ? " active" : ""
-    }">${cat.label}</button>`;
+    }" data-cat="${cat.value}">${cat.label}</button>
+        ${
+          cat.value !== "all"
+            ? `<button class="delete-category-btn ${cat.class}" data-cat="${cat.value}" title="Delete Category">&#10005;</button>`
+            : ""
+        }
+      </span>
+    `;
   });
   // Re-attach category filter events
   document.querySelectorAll(".category").forEach((btn) => {
-    btn.onclick = function () {
+    btn.onclick = function (e) {
+      // Prevent filter if delete button is clicked
+      if (e.target.classList.contains("delete-category-btn")) return;
       const label = btn.textContent.replace(/^[^\w]+/, "").trim();
       if (label === "All Categories") currentCategory = "all";
       else currentCategory = label;
       renderCards();
       renderCategories();
+    };
+  });
+  document.querySelectorAll(".delete-category-btn").forEach((btn) => {
+    btn.onclick = function (e) {
+      e.stopPropagation();
+      const catValue = btn.getAttribute("data-cat");
+      if (
+        confirm(
+          "Are you sure you want to delete this category and all its cards?"
+        )
+      ) {
+        categories = categories.filter((c) => c.value !== catValue);
+        for (let i = prompts.length - 1; i >= 0; i--) {
+          if (
+            prompts[i].category === catValue ||
+            prompts[i].category ===
+              categories.find((c) => c.value === catValue)?.label
+          ) {
+            prompts.splice(i, 1);
+          }
+        }
+        if (currentCategory === catValue) currentCategory = "all";
+        saveData();
+        renderCategories();
+        renderCards();
+      }
     };
   });
 }
@@ -306,6 +380,7 @@ document.addEventListener("DOMContentLoaded", function () {
       description: document.getElementById("newCardDescription").value,
       prompt: document.getElementById("newCardPrompt").value,
     });
+    saveData();
     renderCards();
     newCardModal.style.display = "none";
     newCardForm.reset();
