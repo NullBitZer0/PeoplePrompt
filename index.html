@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HR Prompt Library (Demo Version)</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>HR Prompt Library <span class="demo">(Demo Version)</span></h1>
+      <p class="subtitle">
+        Designed and Developed by Adeesha Perera| NullBitZero |
+        Contact:0716420485
+      </p>
+    </header>
+    <main>
+      <div class="main-content">
+        <div class="search-section">
+          <button class="new-category-btn">+ New Category</button>
+          <input
+            type="text"
+            placeholder="Search prompts by keyword..."
+            id="searchInput"
+          />
+          <div class="categories">
+            <button class="category all">All Categories</button>
+            <button class="category yellow">💰 Compensation & Benefits</button>
+            <button class="category red">🤝 Employee Relations</button>
+            <button class="category purple">📋 HR Strategy & Policy</button>
+            <button class="category green">✅ Performance Management</button>
+            <button class="category blue">🧑‍💼 Recruitment & Onboarding</button>
+            <button class="category orange">📚 Training & Development</button>
+          </div>
+          <button class="how-to-use">ℹ️ How to Use</button>
+        </div>
+        <div
+          style="
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 8px;
+          "
+        >
+          <button class="new-card-btn">+ New Card</button>
+        </div>
+        <div class="card-list" id="cardList">
+          <!-- Cards will be rendered here by JavaScript -->
+        </div>
+      </div>
+    </main>
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Prompt</h2>
+        <p id="modalPrompt"></p>
+      </div>
+    </div>
+    <div id="newCardModal" class="modal">
+      <div class="modal-content">
+        <span class="close-new-card">&times;</span>
+        <h2>Create New Card</h2>
+        <form id="newCardForm">
+          <label
+            >Category:
+            <select id="newCardCategory"></select> </label
+          ><br /><br />
+          <label>Title: <input type="text" id="newCardTitle" required /> </label
+          ><br /><br />
+          <label
+            >Description:
+            <input type="text" id="newCardDescription" required /> </label
+          ><br /><br />
+          <label
+            >Prompt: <textarea id="newCardPrompt" required></textarea></label
+          ><br /><br />
+          <button type="submit">Create Card</button>
+        </form>
+      </div>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
